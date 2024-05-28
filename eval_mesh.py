@@ -1,11 +1,11 @@
 import argparse
 import os
-from pathlib import Path
+# from pathlib import Path
 
 import torch
 import numpy as np
-import transforms3d.euler
-from skimage.io import imread
+import transforms3d
+# from skimage.io import imread
 from tqdm import tqdm
 
 from ldm.base_utils import project_points, mask_depth_to_pts, pose_inverse, pose_apply, output_points, read_pickle
@@ -14,7 +14,7 @@ import mesh2sdf
 import json
 import nvdiffrast.torch as dr
 import multiprocessing as mp
-import numba
+# import numba
 # DEPTH_MAX, DEPTH_MIN = 2.4, 0.6
 # DEPTH_VALID_MAX, DEPTH_VALID_MIN = 2.37, 0.63
 # def read_depth_objaverse(depth_fn):
@@ -148,7 +148,7 @@ def get_points_from_mesh(tsdf, thresh=0.2):
     n1 = np.floor(l1 / thr)
     n2 = np.floor(l2 / thr)
     with mp.Pool() as mp_pool:
-        new_pts = mp_pool.map(sample_single_tri, ((n1[i,0], n2[i,0], v1[i:i+1], v2[i:i+1], tri_vert[i:i+1,0]) for i in range(len(n1))), chunksize=2)
+        new_pts = mp_pool.map(sample_single_tri, ((n1[i,0], n2[i,0], v1[i:i+1], v2[i:i+1], tri_vert[i:i+1,0]) for i in range(len(n1))), chunksize=8)
     
     # with mp.Pool() as pool:
     #     tasks = ((n1[i,0], n2[i,0], v1[i], v2[i], tri_vert[i,0]) for i in range(len(n1)))
@@ -287,10 +287,10 @@ def nn_correspondance(verts1, verts2, truncation_dist, ignore_outlier=True):
 # python eval_mesh.py --pr_mesh D:\2d-gaussian-splatting\output\ec536168-0\train\ours_30000\fuse_unbounded_post.ply --name LEGO_Duplo_Build_and_Play_Box_4629 --pr_type tsdf  --gt_mesh D:\Free3D\MVS_data\render_res\LEGO_Duplo_Build_and_Play_Box_4629\mesh\meshes\model.obj --gt_type mesh --cameras_path D:\2d-gaussian-splatting\output\ec536168-0\cameras.json --output 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pr_mesh', type=str, default=r"D:\2d-gaussian-splatting\output\ec536168-0\train\ours_30000\fuse_unbounded_post.ply")
-    parser.add_argument('--pr_type', type=str, default="tsdf")
-    parser.add_argument('--gt_mesh', type=str, default=r"D:\Free3D\MVS_data\render_res\LEGO_Duplo_Build_and_Play_Box_4629\mesh\meshes\model.obj")
-    parser.add_argument('--cameras_path', type=str, default=r"D:\2d-gaussian-splatting\output\ec536168-0\cameras.json")
+    parser.add_argument('--pr_mesh', type=str, default=r"E:\eval_mvs\LEGO\LEGO_Duplo_Build_and_Play_Box_4629\mesh\meshes\model.obj")
+    parser.add_argument('--pr_type', type=str, default="mesh")
+    parser.add_argument('--gt_mesh', type=str, default=r"E:\eval_mvs\LEGO\LEGO_Duplo_Build_and_Play_Box_4629\mesh\meshes\model.obj")
+    parser.add_argument('--cameras_path', type=str, default=r"E:\eval_mvs\cameras.json")
     parser.add_argument('--name', type=str, default="LEGO_Duplo_Build_and_Play_Box_4629")
     parser.add_argument('--gt_type', type=str, default="mesh")
     parser.add_argument('--voxel_size', type=float, default=0.01)
