@@ -3,10 +3,14 @@
 ## Introduction
 This document provides instructions for evaluating Multi-View Stereo (MVS) methods. MVS is a computer vision technique that reconstructs a 3D scene from multiple 2D images taken from different viewpoints.
 ## Methods to evaluate
-- [x] 2D GS
+- [x] [2D Gaussian Splatting for Geometrically Accurate Radiance Fields](https://github.com/hbb1/2d-gaussian-splatting)
 - [ ] [SuGaR: Surface-Aligned Gaussian Splatting for Efficient 3D Mesh Reconstruction and High-Quality Mesh Rendering](https://github.com/Anttwo/SuGaR)
 - [ ] [Neuralangelo: High-Fidelity Neural Surface Reconstruction.](https://github.com/NVlabs/neuralangelo)
 - [ ] [Meshing Neural SDFs for Real-Time View Synthesis.](https://github.com/hugoycj/torch-bakedsdf)
+- [ ] [SUNDAE: Spectrally Pruned Gaussian Fields with Neural Compensation.](https://github.com/RunyiYang/SUNDAE)
+## Baseline (Mesh)
+- [x] [NeuS: Learning Neural Implicit Surfaces by Volume Rendering for Multi-view Reconstruction.](https://github.com/Anttwo/SuGaR)
+- [ ] [Volume Rendering of Neural Implicit Surfaces.](https://github.com/lioryariv/volsdf)
 ## Dataset
 ```
 <case_name>
