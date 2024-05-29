@@ -141,23 +141,16 @@ def get_points_from_mesh(tsdf, thresh=0.2):
     l2 = np.linalg.norm(v2, axis=-1, keepdims=True)
     area2 = np.linalg.norm(np.cross(v1, v2), axis=-1, keepdims=True)
     non_zero_area = (area2 > 0)[:,0]
+    # print("v1", v1.shape)
+    # print("v2", v2.shape)
     l1, l2, area2, v1, v2, tri_vert = [
         arr[non_zero_area] for arr in [l1, l2, area2, v1, v2, tri_vert]
     ]
     thr = thresh * np.sqrt(l1 * l2 / area2)
     n1 = np.floor(l1 / thr)
     n2 = np.floor(l2 / thr)
-    with mp.Pool() as mp_pool:
-        new_pts = mp_pool.map(sample_single_tri, ((n1[i,0], n2[i,0], v1[i:i+1], v2[i:i+1], tri_vert[i:i+1,0]) for i in range(len(n1))), chunksize=8)
-    
-    # with mp.Pool() as pool:
-    #     tasks = ((n1[i,0], n2[i,0], v1[i], v2[i], tri_vert[i,0]) for i in range(len(n1)))
-    #     new_pts = list(tqdm(pool.imap(sample_single_tri_task, tasks), total=len(n1), desc='sampling...'))
-
-    # new_pts = []
-    # for i in tqdm(range(len(n1)), desc='sampling...'):
-    #     new_pt = sample_single_tri((n1[i,0], n2[i,0], v1[i:i+1], v2[i:i+1], tri_vert[i:i+1,0]) )
-    #     new_pts.append(new_pt)
+    with mp.Pool(processes=8) as mp_pool:
+        new_pts = mp_pool.map(sample_single_tri, ((n1[i,0], n2[i,0], v1[i:i+1], v2[i:i+1], tri_vert[i:i+1,0]) for i in tqdm(range(len(n1)))), chunksize=32)
 
     new_pts = np.concatenate(new_pts, axis=0)
     data_pcd = np.concatenate([vertices, new_pts], axis=0)
@@ -183,7 +176,7 @@ def get_points_from_mesh(tsdf, thresh=0.2):
 #     downpcd = ds_and_save(cache_dir, obj_name, pts, True)
 #     return np.asarray(downpcd.points,np.float32)
 
-def nearest_dist(pts0, pts1, batch_size=512):
+def nearest_dist(pts0, pts1, batch_size=128):
     pts0 = torch.from_numpy(pts0.astype(np.float32)).cuda()
     pts1 = torch.from_numpy(pts1.astype(np.float32)).cuda()
     pn0, pn1 = pts0.shape[0], pts1.shape[0]
@@ -214,38 +207,31 @@ def transform_gt(vertices, rot_angle):
     return vertices
 
 
-def get_chamfer_iou(mesh_pr, mesh_gt, name, pr_type, gt_type, output, cameras_path, downsample,voxel_size=1.0):
+def get_chamfer_iou(mesh_pr, mesh_gt, name, pr_type, gt_type, output, cameras_path, downsample,voxel_size=128):
     num_images, poses, K, H, W = load_cameras(cameras_path)
-    # if pr_type == 'obj':
-    #     pts_pr = get_points_from_mesh(mesh_pr, name, num_images, poses, K, H, W)
-    # elif pr_type == 'tsdf':
-    #     pts_pr = tsdf_to_point_cloud(mesh_pr, voxel_size)
-    
-    # if gt_type == 'obj':
-    #     pts_gt = get_points_from_mesh(mesh_gt, name, num_images, poses, K, H, W)
-    # elif gt_type == 'tsdf':
-    #     pts_gt = tsdf_to_point_cloud(mesh_gt, voxel_size)
-    # get_points_from_mesh(mesh, name, num_images, poses, K, H, W, cache=False)
     pts_pr = get_points_from_mesh(mesh_pr, downsample)
     pts_gt = get_points_from_mesh(mesh_gt, downsample)
-    # pts_pr = get_points_from_mesh(mesh_pr, name, num_images, poses, K, H, W)
-    # pts_gt = get_points_from_mesh(mesh_gt, name, num_images, poses, K, H, W)
-    if output:
-        output_points(f'logs/{name}-mesh-pr.txt', mesh_pr.vertices)
-        output_points(f'logs/{name}-mesh-gt.txt', mesh_gt.vertices)
-        output_points(f'logs/{name}-pts-pr.txt', pts_pr)
-        output_points(f'logs/{name}-pts-gt.txt', pts_gt)
+    # Save pts_pr and pts_gt as point clouds
+    o3d.io.write_point_cloud(r"logs/pts_pr.ply", o3d.geometry.PointCloud(o3d.utility.Vector3dVector(pts_pr)))
+    o3d.io.write_point_cloud(r"logs/pts_gt.ply", o3d.geometry.PointCloud(o3d.utility.Vector3dVector(pts_gt)))
 
     # compute iou
-    size = 64
+    size = voxel_size
     sdf_pr = mesh2sdf.compute(mesh_pr.vertices, mesh_pr.triangles, size, fix=False, return_mesh=False)
     sdf_gt = mesh2sdf.compute(mesh_gt.vertices, mesh_gt.triangles, size, fix=False, return_mesh=False)
     vol_pr = sdf_pr<0
     vol_gt = sdf_gt<0
+    np.save(r'logs/vol_pr.npy', vol_pr)
+    np.save(r'logs/vol_gt.npy', vol_gt)
+
     iou = np.sum(vol_pr & vol_gt)/np.sum(vol_gt | vol_pr)
 
+    print("pts_pr", pts_pr.shape)
+    print("pts_gt", pts_gt.shape)
     dist0 = nearest_dist(pts_pr, pts_gt, batch_size=4096)
-    dist1 = nearest_dist(pts_gt, pts_pr, batch_size=4096)
+    dist1 = nearest_dist(pts_gt, pts_pr, batch_size=512)
+    print("dist0", np.mean(dist0))
+    print("dist1", np.mean(dist1))
 
     chamfer = (np.mean(dist0) + np.mean(dist1)) / 2
     return chamfer, iou
@@ -287,25 +273,38 @@ def nn_correspondance(verts1, verts2, truncation_dist, ignore_outlier=True):
 # python eval_mesh.py --pr_mesh D:\2d-gaussian-splatting\output\ec536168-0\train\ours_30000\fuse_unbounded_post.ply --name LEGO_Duplo_Build_and_Play_Box_4629 --pr_type tsdf  --gt_mesh D:\Free3D\MVS_data\render_res\LEGO_Duplo_Build_and_Play_Box_4629\mesh\meshes\model.obj --gt_type mesh --cameras_path D:\2d-gaussian-splatting\output\ec536168-0\cameras.json --output 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pr_mesh', type=str, default=r"E:\eval_mvs\LEGO\LEGO_Duplo_Build_and_Play_Box_4629\mesh\meshes\model.obj")
+    parser.add_argument('--pr_mesh', type=str, default=r"D:\wyh\eval_mvs\ec536168-0\ec536168-0\train\ours_30000\fuse_unbounded_post.ply")
     parser.add_argument('--pr_type', type=str, default="mesh")
-    parser.add_argument('--gt_mesh', type=str, default=r"E:\eval_mvs\LEGO\LEGO_Duplo_Build_and_Play_Box_4629\mesh\meshes\model.obj")
-    parser.add_argument('--cameras_path', type=str, default=r"E:\eval_mvs\cameras.json")
+    parser.add_argument('--gt_mesh', type=str, default=r"D:\wyh\eval_mvs\LEGO_Duplo_Build_and_Play_Box_4629\LEGO_Duplo_Build_and_Play_Box_4629\mesh\meshes\model.obj")
+    parser.add_argument('--cameras_path', type=str, default=r".\cameras.json")
     parser.add_argument('--name', type=str, default="LEGO_Duplo_Build_and_Play_Box_4629")
     parser.add_argument('--gt_type', type=str, default="mesh")
     parser.add_argument('--voxel_size', type=float, default=0.01)
-    parser.add_argument('--downsample', type=float, default=0.01)
+    parser.add_argument('--mesh_downsample', action='store_true', default=True)
     parser.add_argument('--output', action='store_true', default=True, dest='output')
     args = parser.parse_args()
 
     mesh_gt = o3d.io.read_triangle_mesh(args.gt_mesh)
     vertices_gt = np.asarray(mesh_gt.vertices)
     mesh_gt.vertices = o3d.utility.Vector3dVector(vertices_gt)
-
+    
     mesh_pr = o3d.io.read_triangle_mesh(args.pr_mesh)
+    if args.mesh_downsample:
+        voxel_size_gt = max(mesh_gt.get_max_bound() - mesh_gt.get_min_bound()) 
+        voxel_size_pr = max(mesh_pr.get_max_bound() - mesh_pr.get_min_bound())
+        print(f'voxel_size of gt :{voxel_size_gt:e}')
+        print(f'voxel_size of pr :{voxel_size_pr:e}')
+        scale = voxel_size_gt / voxel_size_pr
+        voxel_size = voxel_size_pr*scale
+        mesh_downsample = mesh_pr.simplify_vertex_clustering(
+            voxel_size=voxel_size,
+            contraction=o3d.geometry.SimplificationContraction.Average)
+        mesh_pr = mesh_downsample
+
     vertices_pr = np.asarray(mesh_pr.vertices)
     mesh_pr.vertices = o3d.utility.Vector3dVector(vertices_pr)
-    chamfer, iou = get_chamfer_iou(mesh_pr, mesh_gt, args.name, args.pr_type, args.gt_type, args.output, args.cameras_path, args.downsample, args.voxel_size)
+
+    chamfer, iou = get_chamfer_iou(mesh_pr, mesh_gt, args.name, args.pr_type, args.gt_type, args.output, args.cameras_path, args.voxel_size)
 
     threshold, truncation_acc, truncation_com = 0.05, 0.50, 0.50
     _, dist_p = nn_correspondance(vertices_gt, vertices_pr, truncation_acc, True) # find nn in ground truth samples for each predict sample -> precision related
@@ -317,7 +316,7 @@ def main():
     f_score = 2 * precision * recall / (precision + recall + 1e-8) # %
 
     results0 = f'case_name\t chamfer\t iou\t f_score'
-    results = f'{args.pr_name}\t {chamfer:.5f}\t {iou:.5f}\t {f_score:.5f}'
+    results = f'{args.name}\t {chamfer:.5f}\t {iou:.5f}\t {f_score:.5f}'
     # results = f'{args.pr_name}\t chamfer:{chamfer:.5f}\t iou:{iou:.5f}\t f_score:{f_score:.5f}'
     print(results0)
     print(results)

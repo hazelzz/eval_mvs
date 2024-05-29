@@ -27,7 +27,7 @@ This document provides instructions for evaluating Multi-View Stereo (MVS) metho
 The total number of images is 150. The elevations of view are 0°，45° and 23°. Each elevation angle corresponds to 50 azimuths, evenly distributed. Recommend using 132 images for training and 18 images for testing (One view for every eight is taken as the test dataset). The camera parameters is recorded in [cameras.json](./cameras.json).
 
 ## Evaluation Metrics
-0. Run specific method and *tuning hyperparameters*  
+0. Run specific method and *tuning hyperparameters*  (set voxel_size=0.5 if possible)
 ### Evaluation for rendered images 
 ```
 python eval_nvs.py --gt <Path to ground truth> --pr <Path to rendered images>  --name <Case Name> --num_images <Number of evaluated images>
