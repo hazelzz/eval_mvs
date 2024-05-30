@@ -28,6 +28,11 @@ The total number of images is 150. The elevations of view are 0°，45° and 23�
 
 ## Evaluation Metrics
 0. Run specific method and *tuning hyperparameters*  (set voxel_size=0.5 if possible)
+tips：
+1. If you encounter some problems in the installation, please google it first. Most of the issues have a solution in github issues.
+2. It is recommended to install the repository on the Windows system, most methods use Open3d, which is not feasible in the Liunx system of the Shanghai science and technology cluster.
+3. If you are unable to compile a submodule via pip and get an error like ```CUDA runtime not found```. This could be due to a mismatch between your Nivdia Diver, cuda toolkits, and c++ CUDA_HOME, please check these items. 
+4. If you get the error ```CalledProcessError: Command '['ninja', '-v']```, change the line ```cmdclass={'build_ext': BuildExtension}``` in the setup.py to ```cmdclass={'build_ext': BuildExtension.with_options(use_ninja=False)}```
 ### Evaluation for rendered images 
 ```
 python eval_nvs.py --gt <Path to ground truth> --pr <Path to rendered images>  --name <Case Name> --num_images <Number of evaluated images>

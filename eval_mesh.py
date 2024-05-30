@@ -217,10 +217,15 @@ def get_chamfer_iou(mesh_pr, mesh_gt, name, pr_type, gt_type, output, cameras_pa
 
     # compute iou
     size = voxel_size
-    sdf_pr = mesh2sdf.compute(mesh_pr.vertices, mesh_pr.triangles, size, fix=False, return_mesh=False)
-    sdf_gt = mesh2sdf.compute(mesh_gt.vertices, mesh_gt.triangles, size, fix=False, return_mesh=False)
-    vol_pr = sdf_pr<0
-    vol_gt = sdf_gt<0
+    # sdf_pr = mesh2sdf.compute(mesh_pr.vertices, mesh_pr.triangles, size, fix=False, return_mesh=False)
+    # sdf_gt = mesh2sdf.compute(mesh_gt.vertices, mesh_gt.triangles, size, fix=False, return_mesh=False)
+    # vol_pr = sdf_pr<0
+    # vol_gt = sdf_gt<0
+    print('voxelization')
+    vol_pr  = o3d.geometry.VoxelGrid.create_from_triangle_mesh(mesh_pr, voxel_size=0.05)
+    vol_gt  = o3d.geometry.VoxelGrid.create_from_triangle_mesh(mesh_gt, voxel_size=0.05)
+    # o3d.visualization.draw_geometries([voxel_grid])
+    
     np.save(r'logs/vol_pr.npy', vol_pr)
     np.save(r'logs/vol_gt.npy', vol_gt)
 
