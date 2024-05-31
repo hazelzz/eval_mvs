@@ -8,6 +8,7 @@ This document provides instructions for evaluating Multi-View Stereo (MVS) metho
 - [ ] [Neuralangelo: High-Fidelity Neural Surface Reconstruction.](https://github.com/NVlabs/neuralangelo)
 - [ ] [Meshing Neural SDFs for Real-Time View Synthesis.](https://github.com/hugoycj/torch-bakedsdf)
 - [ ] [SUNDAE: Spectrally Pruned Gaussian Fields with Neural Compensation.](https://github.com/RunyiYang/SUNDAE)
+- [ ] [Gaussian Opacity Fields: Efficient and Compact Surface Reconstruction in Unbounded Scenes.](https://github.com/autonomousvision/gaussian-opacity-fields)
 ## Baseline (Mesh)
 - [x] [NeuS: Learning Neural Implicit Surfaces by Volume Rendering for Multi-view Reconstruction.](https://github.com/Anttwo/SuGaR)
 - [ ] [Volume Rendering of Neural Implicit Surfaces.](https://github.com/lioryariv/volsdf)
@@ -33,6 +34,10 @@ tips：
 2. It is recommended to install the repository on the Windows system, most methods use Open3d, which is not feasible in the Liunx system of the Shanghai science and technology cluster.
 3. If you are unable to compile a submodule via pip and get an error like ```CUDA runtime not found```. This could be due to a mismatch between your Nivdia Diver, cuda toolkits, and c++ CUDA_HOME, please check these items. 
 4. If you get the error ```CalledProcessError: Command '['ninja', '-v']```, change the line ```cmdclass={'build_ext': BuildExtension}``` in the setup.py to ```cmdclass={'build_ext': BuildExtension.with_options(use_ninja=False)}```
+5. If you get the error ```error: command 'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.1\\bin\\nvcc.exe' failed with exit code 2```, install Microsoft Visual Studio MSVC following [this](https://blog.csdn.net/qq_21488193/article/details/134924533).
+6. When git clone is too slow or error: RPC fails, run ```git clone http://github.com/large-repository --depth 1```  ```cd large-repository``` ```git fetch --unshallow```
+
+
 ### Evaluation for rendered images 
 ```
 python eval_nvs.py --gt <Path to ground truth> --pr <Path to rendered images>  --name <Case Name> --num_images <Number of evaluated images>

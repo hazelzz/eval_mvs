@@ -206,6 +206,23 @@ def transform_gt(vertices, rot_angle):
 
     return vertices
 
+def mesh_to_voxels(mesh, resolution=32):
+    # Get the voxel grid
+    voxel_grid = o3d.geometry.VoxelGrid.create_from_triangle_mesh_within_bounds(
+        mesh, voxel_size=1.0 / resolution, min_bound=mesh.get_min_bound(), max_bound=mesh.get_max_bound()
+    )
+
+    # Initialize the 3D grid
+    grid_shape = (resolution, resolution, resolution)
+    voxel_data = np.zeros(grid_shape, dtype=bool)
+
+    # Iterate through the voxels and set the corresponding grid positions to True
+    for voxel in voxel_grid.get_voxels():
+        grid_idx = voxel.grid_index
+        if grid_idx[0]<resolution and grid_idx[1]<resolution and grid_idx[2]<resolution:
+            voxel_data[grid_idx[0], grid_idx[1], grid_idx[2]] = True
+
+    return voxel_data
 
 def get_chamfer_iou(mesh_pr, mesh_gt, name, pr_type, gt_type, output, cameras_path, downsample,voxel_size=128):
     num_images, poses, K, H, W = load_cameras(cameras_path)
@@ -222,14 +239,12 @@ def get_chamfer_iou(mesh_pr, mesh_gt, name, pr_type, gt_type, output, cameras_pa
     # vol_pr = sdf_pr<0
     # vol_gt = sdf_gt<0
     print('voxelization')
-    vol_pr  = o3d.geometry.VoxelGrid.create_from_triangle_mesh(mesh_pr, voxel_size=0.05)
-    vol_gt  = o3d.geometry.VoxelGrid.create_from_triangle_mesh(mesh_gt, voxel_size=0.05)
-    # o3d.visualization.draw_geometries([voxel_grid])
-    
+    vol_pr  = mesh_to_voxels(mesh_pr, resolution=64)
+    vol_gt  = mesh_to_voxels(mesh_gt, resolution=64)    
     np.save(r'logs/vol_pr.npy', vol_pr)
     np.save(r'logs/vol_gt.npy', vol_gt)
 
-    iou = np.sum(vol_pr & vol_gt)/np.sum(vol_gt | vol_pr)
+    iou = np.sum(np.logical_and(vol_pr,vol_gt))/np.sum(np.logical_or(vol_gt, vol_pr))
 
     print("pts_pr", pts_pr.shape)
     print("pts_gt", pts_gt.shape)
@@ -241,6 +256,27 @@ def get_chamfer_iou(mesh_pr, mesh_gt, name, pr_type, gt_type, output, cameras_pa
     chamfer = (np.mean(dist0) + np.mean(dist1)) / 2
     return chamfer, iou
 
+def preprocess_mesh(mesh_pr, mesh_gt, mesh_downsample=True):
+    if mesh_downsample:
+        voxel_size_gt = max(mesh_gt.get_max_bound() - mesh_gt.get_min_bound()) 
+        voxel_size_pr = max(mesh_pr.get_max_bound() - mesh_pr.get_min_bound())
+        print(f'voxel_size of gt :{voxel_size_gt:e}')
+        print(f'voxel_size of pr :{voxel_size_pr:e}')
+        scale = voxel_size_gt / voxel_size_pr
+        voxel_size = voxel_size_pr*scale
+        mesh_downsample = mesh_pr.simplify_vertex_clustering(
+            voxel_size=voxel_size,
+            contraction=o3d.geometry.SimplificationContraction.Average)
+        mesh_pr = mesh_downsample
+
+    # Load bbox and mask
+    # bbox = np.load('bbox.npy')
+    # mask = np.load('mask.npy')
+
+    # Apply bbox and mask to mesh
+    # mesh_pr = apply_bbox_and_mask(mesh_pr, bbox, mask)
+
+    return mesh_pr
 def nn_correspondance(verts1, verts2, truncation_dist, ignore_outlier=True):
     """ for each vertex in verts2 find the nearest vertex in verts1
     Args:
@@ -252,6 +288,7 @@ def nn_correspondance(verts1, verts2, truncation_dist, ignore_outlier=True):
 
     indices = []
     distances = []
+    dist_ls = []
     if len(verts1) == 0 or len(verts2) == 0:
         return indices, distances
 
@@ -263,7 +300,7 @@ def nn_correspondance(verts1, verts2, truncation_dist, ignore_outlier=True):
 
     for vert in verts2:
         _, inds, dist_square = kdtree.search_knn_vector_3d(vert, 1)
-        
+        dist_ls = np.append(dist_ls, np.sqrt(dist_square[0]))
         if dist_square[0] < truncation_dist_square:
             indices.append(inds[0])
             distances.append(np.sqrt(dist_square[0]))
@@ -294,24 +331,15 @@ def main():
     mesh_gt.vertices = o3d.utility.Vector3dVector(vertices_gt)
     
     mesh_pr = o3d.io.read_triangle_mesh(args.pr_mesh)
-    if args.mesh_downsample:
-        voxel_size_gt = max(mesh_gt.get_max_bound() - mesh_gt.get_min_bound()) 
-        voxel_size_pr = max(mesh_pr.get_max_bound() - mesh_pr.get_min_bound())
-        print(f'voxel_size of gt :{voxel_size_gt:e}')
-        print(f'voxel_size of pr :{voxel_size_pr:e}')
-        scale = voxel_size_gt / voxel_size_pr
-        voxel_size = voxel_size_pr*scale
-        mesh_downsample = mesh_pr.simplify_vertex_clustering(
-            voxel_size=voxel_size,
-            contraction=o3d.geometry.SimplificationContraction.Average)
-        mesh_pr = mesh_downsample
-
+    # vertices_pr = np.asarray(mesh_pr.vertices)
+    # mesh_pr.vertices = o3d.utility.Vector3dVector(vertices_pr)
+    mesh_pr = preprocess_mesh(mesh_pr, mesh_gt, args.mesh_downsample)
     vertices_pr = np.asarray(mesh_pr.vertices)
     mesh_pr.vertices = o3d.utility.Vector3dVector(vertices_pr)
 
     chamfer, iou = get_chamfer_iou(mesh_pr, mesh_gt, args.name, args.pr_type, args.gt_type, args.output, args.cameras_path, args.voxel_size)
 
-    threshold, truncation_acc, truncation_com = 0.05, 0.50, 0.50
+    threshold, truncation_acc, truncation_com = 0.5, 2, 2
     _, dist_p = nn_correspondance(vertices_gt, vertices_pr, truncation_acc, True) # find nn in ground truth samples for each predict sample -> precision related
     _, dist_r = nn_correspondance(vertices_pr, vertices_gt, truncation_com, False) # find nn in predict samples for each ground truth sample -> recall related
     dist_p = np.array(dist_p)
