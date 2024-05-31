@@ -1,2 +1,4 @@
 case_name	      psnrs	     ssims	     lpipss	    l1losses
 2DGS_LEGO	 18.59062	 0.81788	 0.17125	 0.87676
+case_name	      psnrs	     ssims	     lpipss	    l1losses
+DTU_bird	 32.09239	 0.94552	 0.02491	 0.80764
