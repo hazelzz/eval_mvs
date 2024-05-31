@@ -52,6 +52,7 @@ def transform_gt(vertices, rot_angle):
 
 def mesh_to_voxels(mesh, resolution=32):
     # Get the voxel grid
+    mesh.scale(1 / np.max(mesh.get_max_bound() - mesh.get_min_bound()), center=mesh.get_center())
     voxel_grid = o3d.geometry.VoxelGrid.create_from_triangle_mesh(mesh, voxel_size=1.0 / resolution)
 
     # Initialize the 3D grid
@@ -149,7 +150,7 @@ def main():
     parser.add_argument('--gt_mesh_mask', type=str, default=r"D:\wyh\eval_mvs\dtu_data\mask\scan122.ply")
     # parser.add_argument('--name', type=str, default="LEGO_Duplo_Build_and_Play_Box_4629")
     # parser.add_argument('--gt_type', type=str, default="mesh")
-    parser.add_argument('--threshold', type=float, default=500)
+    parser.add_argument('--threshold', type=float, default=600)
     parser.add_argument('--downsample', action='store_true', default=False)
     # parser.add_argument('--output', action='store_true', default=True, dest='output')
     args = parser.parse_args()
@@ -161,7 +162,7 @@ def main():
     Path(out_dir).mkdir(parents=True, exist_ok=True)
     pr_mesh_path = os.path.join(out_dir, r"culled_mesh.ply")
     gt_mesh_path = os.path.join(args.gt_mesh_mask)
-    eval_dtu.cull_scan(122, ply_file, pr_mesh_path, args.gt_mesh_colmap)
+    # eval_dtu.cull_scan(122, ply_file, pr_mesh_path, args.gt_mesh_colmap)
 
     mesh_gt = o3d.io.read_triangle_mesh(gt_mesh_path)
     vertices_gt = np.asarray(mesh_gt.vertices)
@@ -193,10 +194,10 @@ def main():
         print("mesh_pr", vertices_pr.shape)
         print("mesh_gt", vertices_gt.shape)
 
-    print("computing chamfer")
-    cmd = f"python .\eval_dtu\eval.py --data {pr_mesh_path} --scan {122} --mode {args.pr_type} --dataset_dir {args.gt_mesh} --vis_out_dir {out_dir}"
-    print(cmd)
-    os.system(cmd)
+    # print("computing chamfer")
+    # cmd = f"python .\eval_dtu\eval.py --data {pr_mesh_path} --scan {122} --mode {args.pr_type} --dataset_dir {args.gt_mesh} --vis_out_dir {out_dir}"
+    # print(cmd)
+    # os.system(cmd)
 
     print("computing iou")
     iou = get_iou(mesh_pr, mesh_gt, out_dir)
