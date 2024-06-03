@@ -155,8 +155,13 @@ if __name__ == '__main__':
     pbar.set_description('done')
     pbar.close()
     over_all = (mean_d2s + mean_s2d) / 2
-    # print(mean_d2s, mean_s2d, over_all)
+    f_score = 2 * mean_d2s*mean_s2d / (mean_d2s + mean_s2d + 1e-8)
     
+    print("precision:", mean_d2s)
+    print("recall:", mean_s2d)
+    print("[chamfer distance]: ", over_all)
+    print("[f_score]", f_score)
+
     import json
     with open(f'{args.vis_out_dir}/results.json', 'w') as fp:
         json.dump({
@@ -164,5 +169,3 @@ if __name__ == '__main__':
             'mean_s2d': mean_s2d,
             'overall': over_all,
         }, fp, indent=True)
-
-    print("chamfer distance: ", over_all)

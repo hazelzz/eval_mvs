@@ -36,15 +36,16 @@ Recommend that one view for every eight is taken as the test dataset.
 ## Evaluation Metrics
 0. Run specific method and *tuning hyperparameters*  (set voxel_size=0.5 if possible)
 tips：
-1. If you encounter some problems in the installation, please google it first. Most of the issues have a solution in github issues.
-2. It is recommended to install the repository on the Windows system, most methods use Open3d, which is not feasible in the Liunx system of the Shanghai science and technology cluster.
-3. If you are unable to compile a submodule via pip and get an error like ```CUDA runtime not found```. This could be due to a mismatch between your Nivdia Diver, cuda toolkits, and c++ CUDA_HOME, please check these items. 
-4. If you get the error ```CalledProcessError: Command '['ninja', '-v']```, change the line ```cmdclass={'build_ext': BuildExtension}``` in the setup.py to ```cmdclass={'build_ext': BuildExtension.with_options(use_ninja=False)}```
-5. If you get the error ```error: command 'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.1\\bin\\nvcc.exe' failed with exit code 2```, install Microsoft Visual Studio MSVC following [this](https://blog.csdn.net/qq_21488193/article/details/134924533).
-6. When git clone is too slow or error: RPC fails, run ```git clone http://github.com/large-repository --depth 1```  ```cd large-repository``` ```git fetch --unshallow```
+- If you encounter some problems in the installation, please google it first. Most of the issues have a solution in github issues.
+- It is recommended to install the repository on the Windows system, most methods use Open3d, which is not feasible in the Liunx system of the Shanghai science and technology cluster.
+- If you are unable to compile a submodule via pip and get an error like ```CUDA runtime not found```. This could be due to a mismatch between your Nivdia Diver, cuda toolkits, and c++ CUDA_HOME, please check these items. 
+- If you get the error ```CalledProcessError: Command '['ninja', '-v']```, change the line ```cmdclass={'build_ext': BuildExtension}``` in the setup.py to ```cmdclass={'build_ext': BuildExtension.with_options(use_ninja=False)}```.
+- If you get the error ```error: command 'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.1\\bin\\nvcc.exe' failed with exit code 2```, install Microsoft Visual Studio MSVC following [this](https://blog.csdn.net/qq_21488193/article/details/134924533).
+- When git clone is too slow or error: RPC fails, run ```git clone http://github.com/large-repository --depth 1```  ```cd large-repository``` ```git fetch --unshallow```.
 
-7. If you get the error ```ModuleNotFoundError: No module named 'diff_gaussian_rasterization' or 'simple-knn'```, run  ```cd submodules\diff_gaussian_rasterization or simple-knn```  ```python setup.py install```
-8. If you failed ```pip install pytorch3d```, run  ```pip install --extra-index-url https://miropsota.github.io/torch_packages_builder pytorch3d==0.7.6+pt<version of pytorch>cu<version of CUDA>```
+- If you get the error ```ModuleNotFoundError: No module named 'diff_gaussian_rasterization' or 'simple-knn'```, run  ```cd submodules\diff_gaussian_rasterization or simple-knn```  ```python setup.py install```.
+- If you failed ```pip install pytorch3d```, run  ```pip install --extra-index-url https://miropsota.github.io/torch_packages_builder pytorch3d==0.7.6+pt<version of pytorch>cu<version of CUDA>```.
+- If you failed ```pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch```, you can clone the repository and build locally.
 
 ### Evaluation for rendered images 
 ```

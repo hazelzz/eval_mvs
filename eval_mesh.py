@@ -52,7 +52,9 @@ def transform_gt(vertices, rot_angle):
 
 def mesh_to_voxels(mesh, resolution=32):
     # Get the voxel grid
-    mesh.scale(1 / np.max(mesh.get_max_bound() - mesh.get_min_bound()), center=mesh.get_center())
+    scale = 1 / np.max(mesh.get_max_bound() - mesh.get_min_bound())
+    center=mesh.get_center()
+    mesh.scale(scale, center)
     voxel_grid = o3d.geometry.VoxelGrid.create_from_triangle_mesh(mesh, voxel_size=1.0 / resolution)
 
     # Initialize the 3D grid
@@ -67,6 +69,7 @@ def mesh_to_voxels(mesh, resolution=32):
 
     with ThreadPoolExecutor() as executor:
         executor.map(process_voxel, tqdm(voxel_grid.get_voxels()))
+    mesh.scale(1 / scale, center)
 
     return voxel_data
 
@@ -79,7 +82,7 @@ def get_iou(mesh_pr, mesh_gt, out_dir):
     np.save(os.path.join(out_dir,r'vol_gt.npy'), vol_gt)
 
     iou = np.sum(np.logical_and(vol_pr,vol_gt))/np.sum(np.logical_or(vol_gt, vol_pr))
-    print("iou", iou)
+    print("[iou]:", iou)
     return iou
 
 
@@ -194,30 +197,34 @@ def main():
         print("mesh_pr", vertices_pr.shape)
         print("mesh_gt", vertices_gt.shape)
 
-    # print("computing chamfer")
-    # cmd = f"python .\eval_dtu\eval.py --data {pr_mesh_path} --scan {122} --mode {args.pr_type} --dataset_dir {args.gt_mesh} --vis_out_dir {out_dir}"
-    # print(cmd)
-    # os.system(cmd)
+    print("computing chamfer and f_score")
+    cmd = f"python .\eval_dtu\eval.py --data {pr_mesh_path} --scan {122} --mode {args.pr_type} --dataset_dir {args.gt_mesh} --vis_out_dir {out_dir}"
+    print(cmd)
+    os.system(cmd)
 
     print("computing iou")
     iou = get_iou(mesh_pr, mesh_gt, out_dir)
 
-    threshold = args.threshold # how to set this threshold?
-    print("computing f_score")
-    pts_pr_o3d = o3d.geometry.PointCloud()
-    pts_pr_o3d.points = o3d.utility.Vector3dVector(vertices_pr)
-    pts_gt_o3d = o3d.geometry.PointCloud()
-    pts_gt_o3d.points = o3d.utility.Vector3dVector(vertices_gt)
+    # threshold = args.threshold # how to set this threshold?
+    # print("mesh to point cloud")
+    # pts_pr_o3d = o3d.geometry.PointCloud()
+    # pts_pr_o3d.points = o3d.utility.Vector3dVector(vertices_pr)
+    # pts_gt_o3d = o3d.geometry.PointCloud()
+    # pts_gt_o3d.points = o3d.utility.Vector3dVector(vertices_gt)
+    # pts_pr_o3d = mesh_pr.sample_points_uniformly(number_of_points=10000)
+    # pts_gt_o3d = mesh_gt.sample_points_uniformly(number_of_points=10000)
+    # point_cloud = point_cloud.voxel_down_sample(voxel_size=0.005)
 
-    dist_p = pts_pr_o3d.compute_point_cloud_distance(pts_gt_o3d)
-    dist_r = pts_gt_o3d.compute_point_cloud_distance(pts_pr_o3d)
-    recall = float(sum(d < threshold for d in dist_p)) / float(len(dist_p))
-    precision = float(sum(d < threshold for d in dist_r)) / float(len(dist_r))
-    f_score = 2 * precision * recall / (precision + recall + 1e-8) # %
+    # print("computing f_score")
+    # dist_p = pts_pr_o3d.compute_point_cloud_distance(pts_gt_o3d)
+    # dist_r = pts_gt_o3d.compute_point_cloud_distance(pts_pr_o3d)
+    # recall = float(sum(d < threshold for d in dist_p)) / float(len(dist_p))
+    # precision = float(sum(d < threshold for d in dist_r)) / float(len(dist_r))
+    # f_score = 2 * precision * recall / (precision + recall + 1e-8) # %
     
-    print("f_score", f_score)
-    print("precision", precision)
-    print("recall", recall)
+    # print("f_score", f_score)
+    # print("precision", precision)
+    # print("recall", recall)
 
 if __name__=="__main__":
     main()
