@@ -165,7 +165,7 @@ def main():
     Path(out_dir).mkdir(parents=True, exist_ok=True)
     pr_mesh_path = os.path.join(out_dir, r"culled_mesh.ply")
     gt_mesh_path = os.path.join(args.gt_mesh_mask)
-    # eval_dtu.cull_scan(122, ply_file, pr_mesh_path, args.gt_mesh_colmap)
+    eval_dtu.cull_scan(122, ply_file, pr_mesh_path, args.gt_mesh_colmap)
 
     mesh_gt = o3d.io.read_triangle_mesh(gt_mesh_path)
     vertices_gt = np.asarray(mesh_gt.vertices)
