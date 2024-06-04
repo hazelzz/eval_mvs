@@ -9,6 +9,7 @@ This document provides instructions for evaluating Multi-View Stereo (MVS) metho
 - [ ] [Meshing Neural SDFs for Real-Time View Synthesis.](https://github.com/hugoycj/torch-bakedsdf)
 - [ ] [SUNDAE: Spectrally Pruned Gaussian Fields with Neural Compensation.](https://github.com/RunyiYang/SUNDAE)
 - [ ] [Gaussian Opacity Fields: Efficient and Compact Surface Reconstruction in Unbounded Scenes.](https://github.com/autonomousvision/gaussian-opacity-fields)
+- [ ] [Instant Neural Surface Reconstruction.](https://github.com/bennyguo/instant-nsr-pl)
 ## Baseline (Mesh)
 - [x] [NeuS: Learning Neural Implicit Surfaces by Volume Rendering for Multi-view Reconstruction.](https://github.com/Anttwo/SuGaR)
 - [ ] [Volume Rendering of Neural Implicit Surfaces.](https://github.com/lioryariv/volsdf)
