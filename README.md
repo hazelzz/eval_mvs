@@ -51,7 +51,9 @@ tips：
 ### Evaluation for rendered images 
 ```
 python eval_nvs.py --gt <Path to ground truth> --pr <Path to rendered images>  --name <Case Name> --num_images <Number of evaluated images>
-# eg.
+```
+For example
+```
 python eval_nvs.py --gt D:\wyh\eval_mvs\dtu122\test\ours_30000\gt --pr D:\wyh\eval_mvs\dtu122\test\ours_30000\renders  --name DTU_bird --num_images 8
 
 ```
@@ -65,7 +67,9 @@ Before running teh command, please read these items:
 This version need to be tested. Please wait for updating.
 ```
 python eval_mesh.py --pr_mesh <Path to predicted mesh directory> --pr_type "mesh" or "pcd"   --gt_mesh <Path to ground truth directory> --gt_mesh_colmap <Path to ground truth colmap directory> --gt_mesh_mask <Path to ground truth mesh> --downsample
-# eg.
+```
+For example
+```
 python eval_mesh.py --pr_mesh D:\wyh\eval_mvs\dtu122\train\ours_30000\fuse_post.ply --pr_dir D:\wyh\eval_mvs\dtu122 --pr_type mesh --gt_mesh D:\wyh\eval_mvs\dtu_data\MVS_dataset --gt_mesh_colmap D:\wyh\eval_mvs\dtu_data --gt_mesh_mask D:\wyh\eval_mvs\dtu_data\mask\scan122.ply
 ```
 - If you want to downsample meshes, add ```--downsample``` at the end of command. 
@@ -87,3 +91,10 @@ The slides should include:
 ## Conclusion
 Please communicate in a timely manner
 
+## Related projects
+We collect code from following projects. We thanks for the contributions from the open-source community!
+[SyncDreamer](https://github.com/liuyuan-pal/SyncDreamer/tree/main)
+
+[DTUeval-python](https://github.com/jzhangbs/DTUeval-python)
+
+[TanksAndTemples](https://github.com/isl-org/TanksAndTemples/tree/master)
