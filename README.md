@@ -47,6 +47,7 @@ tips：
 - If you get the error ```ModuleNotFoundError: No module named 'diff_gaussian_rasterization' or 'simple-knn'```, run  ```cd submodules\diff_gaussian_rasterization or simple-knn```  ```python setup.py install```.
 - If you failed ```pip install pytorch3d```, run  ```pip install --extra-index-url https://miropsota.github.io/torch_packages_builder pytorch3d==0.7.6+pt<version of pytorch>cu<version of CUDA>```.
 - If you failed ```pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch```, you can clone the repository and build locally.
+- If you get ```MemroyError``` in ```multiprocessing```, reduce `num_workers` in your code.
 
 ### Evaluation for rendered images 
 ```
