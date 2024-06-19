@@ -48,6 +48,7 @@ tips：
 - If you failed ```pip install pytorch3d```, run  ```pip install --extra-index-url https://miropsota.github.io/torch_packages_builder pytorch3d==0.7.6+pt<version of pytorch>cu<version of CUDA>```.
 - If you failed ```pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch```, you can clone the repository and build locally.
 - If you get ```MemroyError``` in ```multiprocessing```, reduce `num_workers` in your code.
+- If you get ```"Distributed package doesn't have NCCL " ```, switch beckend setting from `nccl` with `gloo` in your code. `nccl` doesn't sypport for windows.
 
 ### Evaluation for rendered images 
 ```
