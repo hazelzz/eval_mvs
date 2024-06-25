@@ -5,14 +5,8 @@ This document provides instructions for evaluating Multi-View Stereo (MVS) metho
 ## Methods to evaluate
 - [x] [2D Gaussian Splatting for Geometrically Accurate Radiance Fields](https://github.com/hbb1/2d-gaussian-splatting)
 - [ ] [SuGaR: Surface-Aligned Gaussian Splatting for Efficient 3D Mesh Reconstruction and High-Quality Mesh Rendering](https://github.com/Anttwo/SuGaR)
-- [ ] [Neuralangelo: High-Fidelity Neural Surface Reconstruction.](https://github.com/NVlabs/neuralangelo)
-- [ ] [Meshing Neural SDFs for Real-Time View Synthesis.](https://github.com/hugoycj/torch-bakedsdf)
-- [ ] [SUNDAE: Spectrally Pruned Gaussian Fields with Neural Compensation.](https://github.com/RunyiYang/SUNDAE)
-- [ ] [Gaussian Opacity Fields: Efficient and Compact Surface Reconstruction in Unbounded Scenes.](https://github.com/autonomousvision/gaussian-opacity-fields)
-- [ ] [Instant Neural Surface Reconstruction.](https://github.com/bennyguo/instant-nsr-pl)
-## Baseline (Mesh)
-- [x] [NeuS: Learning Neural Implicit Surfaces by Volume Rendering for Multi-view Reconstruction.](https://github.com/Anttwo/SuGaR)
-- [ ] [Volume Rendering of Neural Implicit Surfaces.](https://github.com/lioryariv/volsdf)
+- [ ] [Neuralangelo: High-Fidelity Neural Surface Reconstruction.](https://github.com/NVlabs/neuralangelo) not support windows
+- [ ] [instant-nsr-pl](https://github.com/bennyguo/instant-nsr-pl)
 
 ## ⭐ New Dataset
 We switch to using DTU dataset, because we need mask and bounding box of Ground truth
@@ -48,7 +42,9 @@ tips：
 - If you failed ```pip install pytorch3d```, run  ```pip install --extra-index-url https://miropsota.github.io/torch_packages_builder pytorch3d==0.7.6+pt<version of pytorch>cu<version of CUDA>```.
 - If you failed ```pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch```, you can clone the repository and build locally.
 - If you get ```MemroyError``` in ```multiprocessing```, reduce `num_workers` in your code.
-- If you get ```"Distributed package doesn't have NCCL " ```, switch beckend setting from `nccl` with `gloo` in your code. `nccl` doesn't sypport for windows.
+- If you get ```"Distributed package doesn't have NCCL " ```, switch backend setting from `nccl` with `gloo` in your code. `nccl` doesn't sypport for windows. `os.environ["PL_TORCH_DISTRIBUTED_BACKEND"] = "gloo"`
+- If you get ```C:\Program Files\Microsoft Visual Studio\2022\Community>pushd C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\ 系统找不到指定的路径。```, run `setup_env.bat`
+- If ```pip install -e .``` doesn't work , run `python setup.py install`
 
 ### Evaluation for rendered images 
 ```
