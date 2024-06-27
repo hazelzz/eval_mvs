@@ -12,6 +12,7 @@ from torchmetrics.functional import structural_similarity_index_measure
 import lpips
 from sam_utils import sam_init, sam_out_nosave
 from util import pred_bbox, image_preprocess_nosave
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 def compute_psnr_float(img_gt, img_pr):
     img_gt = img_gt.reshape([-1, 3]).astype(np.float32)
@@ -39,15 +40,15 @@ def color_map_forward(rgb):
 def preprocess_image(models, img_path, GT = False):
     img = Image.open(img_path)
     if not img.mode == 'RGBA':
-        img.thumbnail([512, 512], Image.Resampling.LANCZOS)
-        img = sam_out_nosave(models['sam'], img.convert("RGB"), pred_bbox(img))
+        # img.thumbnail([512, 512], Image.Resampling.LANCZOS)
+        # img = sam_out_nosave(models['sam'], img.convert("RGB"), pred_bbox(img))
         torch.cuda.empty_cache()
     else:
         img = np.array(img, dtype=np.float32) / 255.0
         img = img[:, :, 3:4] * img+ (1.0 - img[:, :, 3:4]) * np.ones_like(img)
         img = img[:, :, :3]
         img = Image.fromarray(img, mode='RGBA')
-    img = image_preprocess_nosave(img, lower_contrast=False, rescale=True)
+    # img = image_preprocess_nosave(img, lower_contrast=False, rescale=True)
     return color_map_forward(img)
  
 
@@ -64,7 +65,7 @@ def main():
     pr_dir = args.pr
 
     models = {}
-    models['sam'] = sam_init(0, r"ckpts\sam_vit_h_4b8939.pth")
+    # models['sam'] = sam_init(0, r"ckpts\sam_vit_h_4b8939.pth")
     models['lpips'] = lpips.LPIPS(net='vgg').cuda().eval()
     fid_score = 0
 

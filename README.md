@@ -7,6 +7,7 @@ This document provides instructions for evaluating Multi-View Stereo (MVS) metho
 - [ ] [SuGaR: Surface-Aligned Gaussian Splatting for Efficient 3D Mesh Reconstruction and High-Quality Mesh Rendering](https://github.com/Anttwo/SuGaR)
 - [ ] [Neuralangelo: High-Fidelity Neural Surface Reconstruction.](https://github.com/NVlabs/neuralangelo) not support windows
 - [ ] [instant-nsr-pl](https://github.com/bennyguo/instant-nsr-pl)
+- [ ] [Meshing Neural SDFs for Real-Time View Synthesis](https://github.com/hugoycj/torch-bakedsdf)
 
 ## ⭐ New Dataset
 We switch to using DTU dataset, because we need mask and bounding box of Ground truth
@@ -52,7 +53,7 @@ python eval_nvs.py --gt <Path to ground truth> --pr <Path to rendered images>  -
 ```
 For example
 ```
-python eval_nvs.py --gt D:\wyh\eval_mvs\dtu122\test\ours_30000\gt --pr D:\wyh\eval_mvs\dtu122\test\ours_30000\renders  --name DTU_bird --num_images 8
+python eval_nvs.py --gt D:\wyh\eval_mvs\dtu122_2dgs\test\ours_30000\gt --pr D:\wyh\eval_mvs\dtu122_2dgs\test\ours_30000\renders  --name DTU_bird --num_images 8
 
 ```
 Before running teh command, please read these items:
