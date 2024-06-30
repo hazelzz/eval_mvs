@@ -9,9 +9,23 @@ import argparse
 from tqdm import tqdm
 import trimesh
 from pathlib import Path
+import transforms3d
+import math
+
 
 import eval_dtu.render_utils as rend_util
 
+def norm_coords(vertices):
+    max_pt = np.max(vertices, 0)
+    min_pt = np.min(vertices, 0)
+    scale = 1 / np.max(max_pt - min_pt)
+    vertices = vertices * scale
+
+    max_pt = np.max(vertices, 0)
+    min_pt = np.min(vertices, 0)
+    center = (max_pt + min_pt) / 2
+    vertices = vertices - center[None, :]
+    return vertices
 
 def cull_scan(scan, mesh_path, result_mesh_file, instance_dataset):
 
@@ -50,6 +64,9 @@ def cull_scan(scan, mesh_path, result_mesh_file, instance_dataset):
     mesh = trimesh.load(mesh_path)
     
     vertices = mesh.vertices
+    # vertices = norm_coords(vertices)
+    R = transforms3d.euler.euler2mat(np.pi /2, 0, 0, 'szyx')
+    vertices = vertices @ R.T
 
     # project and filter
     vertices = torch.from_numpy(vertices).cuda()

@@ -26,22 +26,22 @@ def color_map_forward(rgb):
     rgb = np.array(rgb, dtype=np.float32)
     # print(rgb)
     dim = rgb.shape[-1]
-    new_size = (256, 256)
+    new_size = (777, 581)
     if dim==3:
-        rgb=cv2.resize(rgb,new_size,interpolation=cv2.INTER_CUBIC)
+        # rgb=cv2.resize(rgb,new_size,interpolation=cv2.INTER_CUBIC)
         return np.array(rgb, dtype=np.float32) /255
     else:
-        rgb = np.array(rgb, dtype=np.float32) /255
+        rgb = np.array(rgb, dtype=np.float32)
         rgb, alpha = rgb[:,:,:3], rgb[:,:,3:]
         rgb = rgb * alpha + (1-alpha)
-        rgb=cv2.resize(rgb,new_size,interpolation=cv2.INTER_CUBIC)
-        return Image.fromarray(rgb) 
+        # rgb=cv2.resize(rgb,new_size,interpolation=cv2.INTER_CUBIC)
+        return np.uint8(rgb)
 
 def preprocess_image(models, img_path, GT = False):
     img = Image.open(img_path)
     if not img.mode == 'RGBA':
         # img.thumbnail([512, 512], Image.Resampling.LANCZOS)
-        # img = sam_out_nosave(models['sam'], img.convert("RGB"), pred_bbox(img))
+        img = sam_out_nosave(models['sam'], img.convert("RGB"), pred_bbox(img))
         torch.cuda.empty_cache()
     else:
         img = np.array(img, dtype=np.float32) / 255.0
@@ -54,10 +54,10 @@ def preprocess_image(models, img_path, GT = False):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument('--gt',type=str,default=r'D:\Free3D\zero123plus_out\out\Ecoforms_Plant_Container_12_Pot_Nova_gt')
-    parser.add_argument('--pr',type=str,default=r'D:\Free3D\zero123plus_out\out\1')
-    parser.add_argument('--name',type=str, default=r'zero123++_Ecoforms_Plant_Container_12_Pot_Nova')
-    parser.add_argument('--num_images',type=int, default=r'zero123++_Ecoforms_Plant_Container_12_Pot_Nova')
+    parser.add_argument('--gt',type=str,default=r'D:\wyh\eval_mvs\dtu122_2dgs\test\ours_30000\gt')
+    parser.add_argument('--pr',type=str,default=r'D:\wyh\eval_mvs\dtu122_2dgs\test\ours_30000\renders')
+    parser.add_argument('--name',type=str, default=r'DTU_bird')
+    parser.add_argument('--num_images',type=int, default=8)
     args = parser.parse_args()
 
     num_images = args.num_images
@@ -65,7 +65,7 @@ def main():
     pr_dir = args.pr
 
     models = {}
-    # models['sam'] = sam_init(0, r"ckpts\sam_vit_h_4b8939.pth")
+    models['sam'] = sam_init(0, r"ckpts\sam_vit_h_4b8939.pth")
     models['lpips'] = lpips.LPIPS(net='vgg').cuda().eval()
     fid_score = 0
 
@@ -78,6 +78,8 @@ def main():
         os.makedirs(save_path, exist_ok=True)
         Image.fromarray((img_gt*255).astype(np.uint8)).save(os.path.join(save_path,f'gt_{k:05}.png'))
         Image.fromarray((img_pr*255).astype(np.uint8)).save(os.path.join(save_path,f'pr_{k:05}.png'))
+        # img_gt.save(os.path.join(save_path,f'gt_{k:05}.png'))
+        # img_pr.save(os.path.join(save_path,f'pr_{k:05}.png'))
         psnr = compute_psnr_float(img_gt, img_pr)
 
         with torch.no_grad():

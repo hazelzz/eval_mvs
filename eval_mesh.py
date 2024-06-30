@@ -141,6 +141,12 @@ def nn_correspondance(verts1, verts2, truncation_dist, ignore_outlier=True):
 
     return indices, distances
 
+def transform_pr(vertices, rot_angle):
+    vertices = norm_coords(vertices)
+    R = transforms3d.euler.euler2mat(rot_angle[0], rot_angle[1], rot_angle[2], 'szyx')
+    vertices = vertices @ R.T
+
+    return vertices
 # python eval_mesh.py --pr_mesh eval_examples/chicken-pr.ply --pr_name chicken --gt_dir eval_examples/chicken-gt --gt_mesh eval_examples/chicken-mesh/meshes/model.obj --gt_name chicken
 # python eval_mesh.py --pr_mesh D:\2d-gaussian-splatting\output\ec536168-0\train\ours_30000\fuse_unbounded_post.ply --name LEGO_Duplo_Build_and_Play_Box_4629 --pr_type tsdf  --gt_mesh D:\Free3D\MVS_data\render_res\LEGO_Duplo_Build_and_Play_Box_4629\mesh\meshes\model.obj --gt_type mesh --cameras_path D:\2d-gaussian-splatting\output\ec536168-0\cameras.json --output 
 def main():
@@ -154,7 +160,7 @@ def main():
     # parser.add_argument('--name', type=str, default="LEGO_Duplo_Build_and_Play_Box_4629")
     # parser.add_argument('--gt_type', type=str, default="mesh")
     parser.add_argument('--threshold', type=float, default=600)
-    parser.add_argument('--downsample', action='store_true', default=False)
+    parser.add_argument('--downsample', action='store_true')
     # parser.add_argument('--output', action='store_true', default=True, dest='output')
     args = parser.parse_args()
 

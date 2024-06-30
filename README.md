@@ -7,7 +7,7 @@ This document provides instructions for evaluating Multi-View Stereo (MVS) metho
 - [ ] [SuGaR: Surface-Aligned Gaussian Splatting for Efficient 3D Mesh Reconstruction and High-Quality Mesh Rendering](https://github.com/Anttwo/SuGaR)
 - [ ] [Neuralangelo: High-Fidelity Neural Surface Reconstruction.](https://github.com/NVlabs/neuralangelo) not support windows
 - [ ] [instant-nsr-pl](https://github.com/bennyguo/instant-nsr-pl)
-- [ ] [Meshing Neural SDFs for Real-Time View Synthesis](https://github.com/hugoycj/torch-bakedsdf)
+- [x] [Meshing Neural SDFs for Real-Time View Synthesis](https://github.com/hugoycj/torch-bakedsdf)
 
 ## ⭐ New Dataset
 We switch to using DTU dataset, because we need mask and bounding box of Ground truth
@@ -63,7 +63,11 @@ Before running teh command, please read these items:
 4. Download SAM checkpoint [here](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth) and mode to ```./ckpts```
 
 ### Evaluation for mesh
-This version need to be tested. Please wait for updating.
+Before evaluating the mesh, please postprocess it for fairness.
+```
+python postprocess_mesh.py --input <Path to predicted mesh> --num_cluster 1
+```
+
 ```
 python eval_mesh.py --pr_mesh <Path to predicted mesh directory> --pr_type "mesh" or "pcd"   --gt_mesh <Path to ground truth directory> --gt_mesh_colmap <Path to ground truth colmap directory> --gt_mesh_mask <Path to ground truth mesh> --downsample
 ```
