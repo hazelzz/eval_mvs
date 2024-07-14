@@ -65,8 +65,12 @@ def cull_scan(scan, mesh_path, result_mesh_file, instance_dataset):
     
     vertices = mesh.vertices
     # vertices = norm_coords(vertices)
-    R = transforms3d.euler.euler2mat(np.pi /2, 0, 0, 'szyx')
-    vertices = vertices @ R.T
+
+    # if mesh_path.find("neuralangelo") == -1:
+    # R = transforms3d.euler.euler2mat(np.pi /2, 0, 0, 'szyx')
+    # R = transforms3d.euler.euler2mat(0, np.pi /2, 0, 'szyx')
+    # R = transforms3d.euler.euler2mat(0, 0, np.pi /2, 'szyx')
+    # vertices = vertices @ R.T
 
     # project and filter
     vertices = torch.from_numpy(vertices).cuda()

@@ -15,10 +15,10 @@ from util import pred_bbox, image_preprocess_nosave
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 def compute_psnr_float(img_gt, img_pr):
-    img_gt = img_gt.reshape([-1, 3]).astype(np.float32)
-    img_pr = img_pr.reshape([-1, 3]).astype(np.float32)
+    img_gt = img_gt.reshape([-1, 3]).astype(np.float32)/ 255.0
+    img_pr = img_pr.reshape([-1, 3]).astype(np.float32)/ 255.0
     mse = np.mean((img_gt - img_pr) ** 2, 0)
-    mse = np.mean(mse) + 1e-8
+    mse = np.mean(mse) 
     psnr = 10 * np.log10(1 / mse)
     return psnr
 
@@ -28,26 +28,28 @@ def color_map_forward(rgb):
     dim = rgb.shape[-1]
     new_size = (777, 581)
     if dim==3:
-        # rgb=cv2.resize(rgb,new_size,interpolation=cv2.INTER_CUBIC)
+        rgb=cv2.resize(rgb,new_size,interpolation=cv2.INTER_CUBIC)
         return np.array(rgb, dtype=np.float32) /255
     else:
         rgb = np.array(rgb, dtype=np.float32)
         rgb, alpha = rgb[:,:,:3], rgb[:,:,3:]
         rgb = rgb * alpha + (1-alpha)
-        # rgb=cv2.resize(rgb,new_size,interpolation=cv2.INTER_CUBIC)
+        rgb=cv2.resize(rgb,new_size,interpolation=cv2.INTER_CUBIC)
         return np.uint8(rgb)
 
 def preprocess_image(models, img_path, GT = False):
     img = Image.open(img_path)
-    if not img.mode == 'RGBA':
-        # img.thumbnail([512, 512], Image.Resampling.LANCZOS)
-        img = sam_out_nosave(models['sam'], img.convert("RGB"), pred_bbox(img))
-        torch.cuda.empty_cache()
-    else:
-        img = np.array(img, dtype=np.float32) / 255.0
-        img = img[:, :, 3:4] * img+ (1.0 - img[:, :, 3:4]) * np.ones_like(img)
-        img = img[:, :, :3]
-        img = Image.fromarray(img, mode='RGBA')
+    # if not img.mode == 'RGBA':
+    img.thumbnail([777, 581], Image.Resampling.LANCZOS)
+    #     img = sam_out_nosave(models['sam'], img.convert("RGB"), pred_bbox(img))
+    #     torch.cuda.empty_cache()
+    # else:
+        # img = np.array(img, dtype=np.float32) / 255.0
+        # img = img[:, :, 3:4] * img+ (1.0 - img[:, :, 3:4]) * np.ones_like(img)
+        # img = img[:, :, :3]
+        # img = Image.fromarray(img*255, mode='RGBA')
+    img = sam_out_nosave(models['sam'], img.convert("RGB"), pred_bbox(img))
+    torch.cuda.empty_cache()
     # img = image_preprocess_nosave(img, lower_contrast=False, rescale=True)
     return color_map_forward(img)
  
@@ -55,7 +57,7 @@ def preprocess_image(models, img_path, GT = False):
 def main():
     parser = ArgumentParser()
     parser.add_argument('--gt',type=str,default=r'D:\wyh\eval_mvs\dtu122_2dgs\test\ours_30000\gt')
-    parser.add_argument('--pr',type=str,default=r'D:\wyh\eval_mvs\dtu122_2dgs\test\ours_30000\renders')
+    parser.add_argument('--pr',type=str,default=r'D:\wyh\SuGaR\rendered_images\pr')
     parser.add_argument('--name',type=str, default=r'DTU_bird')
     parser.add_argument('--num_images',type=int, default=8)
     args = parser.parse_args()

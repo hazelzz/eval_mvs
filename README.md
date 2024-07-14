@@ -6,7 +6,7 @@ This document provides instructions for evaluating Multi-View Stereo (MVS) metho
 - [x] [2D Gaussian Splatting for Geometrically Accurate Radiance Fields](https://github.com/hbb1/2d-gaussian-splatting)
 - [ ] [SuGaR: Surface-Aligned Gaussian Splatting for Efficient 3D Mesh Reconstruction and High-Quality Mesh Rendering](https://github.com/Anttwo/SuGaR)
 - [ ] [Neuralangelo: High-Fidelity Neural Surface Reconstruction.](https://github.com/NVlabs/neuralangelo) not support windows
-- [ ] [instant-nsr-pl](https://github.com/bennyguo/instant-nsr-pl)
+- [x] [instant-nsr-pl](https://github.com/bennyguo/instant-nsr-pl) not support windows
 - [x] [Meshing Neural SDFs for Real-Time View Synthesis](https://github.com/hugoycj/torch-bakedsdf)
 
 ## ⭐ New Dataset
@@ -66,6 +66,7 @@ Before running teh command, please read these items:
 Before evaluating the mesh, please postprocess it for fairness.
 ```
 python postprocess_mesh.py --input <Path to predicted mesh> --num_cluster 1
+python postprocess_mesh.py --input D:\wyh\SuGaR\output\refined_mesh\scan122\sugarfine_3Dgs7000_sdfestim02_sdfnorm02_level03_decim1000000_normalconsistency01_gaussperface1_postprocessed.obj --num_cluster 1
 ```
 
 ```
