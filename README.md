@@ -3,31 +3,31 @@
 ## Introduction
 This document provides instructions for evaluating Multi-View Stereo (MVS) methods. MVS is a computer vision technique that reconstructs a 3D scene from multiple 2D images taken from different viewpoints.
 ## Methods to evaluate
-- [x] [2D Gaussian Splatting for Geometrically Accurate Radiance Fields](https://github.com/hbb1/2d-gaussian-splatting)
+- [ ] [2D Gaussian Splatting for Geometrically Accurate Radiance Fields](https://github.com/hbb1/2d-gaussian-splatting)
 - [ ] [SuGaR: Surface-Aligned Gaussian Splatting for Efficient 3D Mesh Reconstruction and High-Quality Mesh Rendering](https://github.com/Anttwo/SuGaR)
 - [ ] [Neuralangelo: High-Fidelity Neural Surface Reconstruction.](https://github.com/NVlabs/neuralangelo) not support windows
-- [x] [instant-nsr-pl](https://github.com/bennyguo/instant-nsr-pl) not support windows
-- [x] [Meshing Neural SDFs for Real-Time View Synthesis](https://github.com/hugoycj/torch-bakedsdf)
+- [ ] [instant-nsr-pl](https://github.com/bennyguo/instant-nsr-pl) (NeuS hash version) not support windows
+- [ ] [Meshing Neural SDFs for Real-Time View Synthesis](https://github.com/hugoycj/torch-bakedsdf)
 
-## ⭐ New Dataset
-We switch to using DTU dataset, because we need mask and bounding box of Ground truth
+## DTU dataset
+You can download the preprocessed data from [here](https://drive.google.com/drive/folders/1SJFgt8qhQomHX55Q4xSvYE2C6-8tFll9).
+You also need to download the ground truth [DTU point cloud](https://drive.google.com/drive/folders/1SJFgt8qhQomHX55Q4xSvYE2C6-8tFll9).
+After downloading the dataset, you should organize your data like this:
 ```
-<case_name>
-|-- mask
-    |-- scan122.ply     # target mesh
-|-- MVS_dataset
+datasets
+|-- DTU_mask  # preprocessed data
+    |-- scan122
+    ...
+|-- DTU  # official data
     |-- ObsMask
     |-- Points
-|-- scan122
-    |-- images             
-        |-- 00000.png        # target image for each view
-        |-- 00001.png
-        ...
-    |-- mask
-        ...
 ...
 ```
 Recommend that one view for every eight is taken as the test dataset.
+
+Most of methods have provide the evaluation scripts for dtu datasets. You can follow the guidance in its README.md to compute the metrics.
+
+If the method doesn't provide evaluation scripts, yYou can calculate the metrics for each case separately and calculate its average according to the guidelines below. 
 
 ## Evaluation Metrics
 0. Run specific method and *tuning hyperparameters*  (set voxel_size=0.5 if possible)
