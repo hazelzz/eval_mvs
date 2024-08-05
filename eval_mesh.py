@@ -166,12 +166,13 @@ def main():
 
     # preprocess mesh
     print("preprocessing mesh")
+    dtu_id = 122
     ply_file = os.path.join(args.pr_mesh)
     out_dir = os.path.join(args.pr_dir, "eval_dtu")
     Path(out_dir).mkdir(parents=True, exist_ok=True)
     pr_mesh_path = os.path.join(out_dir, r"culled_mesh.ply")
     gt_mesh_path = os.path.join(args.gt_mesh_mask)
-    # eval_dtu.cull_scan(122, ply_file, pr_mesh_path, args.gt_mesh_colmap)
+    eval_dtu.cull_scan(dtu_id, ply_file, pr_mesh_path, args.gt_mesh_colmap)
     # return
 
     mesh_gt = o3d.io.read_triangle_mesh(gt_mesh_path)
